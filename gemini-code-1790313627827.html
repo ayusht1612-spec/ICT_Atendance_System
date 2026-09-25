@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System - GPA ICT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .nav-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+        }
+        .section-view {
+            display: none;
+        }
+        .section-view.active {
+            display: block;
+        }
+
+        /* Right Click Context Menu Styling */
+        #context-menu {
+            position: absolute;
+            display: none;
+            z-index: 10000;
+            min-width: 170px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
+            overflow: hidden;
+        }
+        #context-menu .menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            color: #dc3545;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        #context-menu .menu-item:hover {
+            background-color: #f8d7da;
+        }
+
+        /* Swipe to Delete CSS animation & feedback */
+        .swipeable-row {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            touch-action: pan-y;
+        }
+        .swiping-left {
+            background-color: #f8d7da !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Custom Context Menu for Desktop Right Click -->
+    <div id="context-menu">
+        <div class="menu-item" id="btn-context-action">
+            <i class="bi bi-trash-fill"></i> <span id="context-action-text">Delete Record</span>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#" onclick="showSection('home')">
+                <i class="bi bi-journal-check me-2"></i>GPA ICT Attendance Portal
+            </a>
+            <button class="btn btn-outline-light btn-sm" onclick="showSection('home')">
+                <i class="bi bi-house-door-fill me-1"></i> Home
+            </button>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <!-- ================= HOME MAIN NAVIGATION ================= -->
+        <div id="home" class="section-view active">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-dark">Smart Attendance Management Portal</h2>
+                <p class="text-muted">Government Polytechnic Ahmedabad - ICT Department</p>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="card nav-card border-0 shadow-sm text-center p-4 h-100" onclick="showSection('add-attendance-sec')">
+                        <div class="card-body">
+                            <i class="bi bi-person-plus-fill text-primary display-4 mb-3"></i>
+                            <h4 class="card-title fw-bold">1. Add Attendance</h4>
+                            <p class="card-text text-muted small">Mark student attendance via digital entry form & configure faculty session.</p>
+                            <button class="btn btn-primary rounded-pill px-4 mt-2">Open Form</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card nav-card border-0 shadow-sm text-center p-4 h-100" onclick="showSection('attendance-register-sec')">
+                        <div class="card-body">
+                            <i class="bi bi-journal-check text-success display-4 mb-3"></i>
+                            <h4 class="card-title fw-bold">2. Attendance Register</h4>
+                            <p class="card-text text-muted small">View complete master attendance records with Student, Faculty, and Lecture details.</p>
+                            <button class="btn btn-success rounded-pill px-4 mt-2">View Register</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card nav-card border-0 shadow-sm text-center p-4 h-100" onclick="showSection('student-login-sec')">
+                        <div class="card-body">
+                            <i class="bi bi-person-badge-fill text-warning display-4 mb-3"></i>
+                            <h4 class="card-title fw-bold">3. Student Login</h4>
+                            <p class="card-text text-muted small">Students can check their attendance history and calculate overall percentage.</p>
+                            <button class="btn btn-warning text-white rounded-pill px-4 mt-2">Student Portal</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 1: ADD ATTENDANCE (FORM) ================= -->
+        <div id="add-attendance-sec" class="section-view">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-bold text-primary"><i class="bi bi-pencil-square me-2"></i>Add Attendance Form</h3>
+                <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Back to Home</button>
+            </div>
+
+            <!-- Active Faculty Banner -->
+            <div id="faculty-banner" class="alert alert-info d-flex justify-content-between align-items-center shadow-sm" oncontextmenu="handleFacultyContextMenu(event)">
+                <div>
+                    <strong>Active Lecture Session:</strong> <span id="session-faculty">Prof. Sharma</span> | 
+                    <strong>Lecture:</strong> <span id="session-lecture">Python Programming</span> | 
+                    <strong>Room No:</strong> <span id="session-room">Lab-302</span>
+                    <small class="text-danger ms-2 d-none d-md-inline" style="font-size: 11px;">(Right-click banner to reset session)</small>
+                </div>
+                <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#addFacultyModal">
+                    <i class="bi bi-person-gear"></i> Set / Add Faculty
+                </button>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-primary text-white fw-bold">Mark Attendance Entry</div>
+                        <div class="card-body">
+                            <form id="attendance-entry-form">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label class="form-label fw-bold">Date (Automatic)</label>
+                                        <input type="text" id="att-date" class="form-control bg-light" readonly>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label fw-bold">Time (Automatic)</label>
+                                        <input type="text" id="att-time" class="form-control bg-light" readonly>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Student Name</label>
+                                    <input type="text" id="att-name" class="form-control" placeholder="e.g. Rahul Patel" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Roll No.</label>
+                                    <input type="text" id="att-roll" class="form-control" placeholder="e.g. 101" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold">Submit Attendance</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+                            <span>Recently Marked Entries</span>
+                            <small class="text-warning" style="font-size: 11px;">(Swipe left or Right-click to delete)</small>
+                        </div>
+                        <div class="card-body p-2" style="max-height: 380px; overflow-y: auto;">
+                            <table class="table table-sm table-hover text-center">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Name</th>
+                                        <th>Roll No</th>
+                                        <th>Lecture</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-attendance-list">
+                                    <!-- Populated via Firebase -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 2: ATTENDANCE REGISTER ================= -->
+        <div id="attendance-register-sec" class="section-view">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-bold text-success"><i class="bi bi-journal-bookmark me-2"></i>Attendance Register</h3>
+                <div>
+                    <button class="btn btn-success me-2" onclick="exportToCSV()"><i class="bi bi-file-earmark-excel"></i> Export CSV/Excel</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Back to Home</button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-secondary">Master Attendance Records</span>
+                    <small class="text-danger"><i class="bi bi-info-circle"></i> Swipe left on mobile or Right-click on desktop to delete record</small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0 text-center align-middle" id="register-table">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Student Name</th>
+                                    <th>Roll No</th>
+                                    <th>Faculty Name</th>
+                                    <th>Lecture Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-register-list">
+                                <!-- Populated via Firebase -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 3: STUDENT LOGIN ================= -->
+        <div id="student-login-sec" class="section-view">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-bold text-warning"><i class="bi bi-person-circle me-2"></i>Student Attendance Portal</h3>
+                <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Back to Home</button>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-5">
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-warning text-dark fw-bold">Student Verification</div>
+                        <div class="card-body">
+                            <form id="student-login-form">
+                                <div class="mb-3">
+                                    <label class="form-label">Student Name</label>
+                                    <input type="text" id="login-name" class="form-control" placeholder="e.g. Rahul Patel" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Roll No</label>
+                                    <input type="text" id="login-roll" class="form-control" placeholder="e.g. 101" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Branch</label>
+                                    <input type="text" id="login-branch" class="form-control" value="ICT" required>
+                                </div>
+                                <button type="submit" class="btn btn-warning text-white w-100 fw-bold">Check Attendance</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div id="student-result-card" class="card shadow-sm border-0 d-none">
+                        <div class="card-header bg-dark text-white fw-bold">Attendance Statistics</div>
+                        <div class="card-body text-center">
+                            <h4 id="st-display-name" class="fw-bold text-primary mb-1">--</h4>
+                            <p class="text-muted">Roll No: <span id="st-display-roll">--</span> | Branch: <span id="st-display-branch">--</span></p>
+                            
+                            <div class="my-4">
+                                <div class="display-3 fw-bold text-success" id="st-percentage">0%</div>
+                                <div class="progress mt-2" style="height: 12px;">
+                                    <div id="st-progress-bar" class="progress-bar bg-success" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <p class="mb-0">Attended <strong id="st-attended-count">0</strong> out of <strong id="st-total-count">0</strong> conducted sessions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: Add / Change Faculty -->
+    <div class="modal fade" id="addFacultyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Add / Set Faculty Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="faculty-form">
+                        <div class="mb-3">
+                            <label class="form-label">Faculty Name</label>
+                            <input type="text" id="fac-name" class="form-control" placeholder="e.g. Prof. Sharma" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Lecture / Subject</label>
+                            <input type="text" id="fac-lecture" class="form-control" placeholder="e.g. Python Programming" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Room No.</label>
+                            <input type="text" id="fac-room" class="form-control" placeholder="e.g. Lab-302" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save Active Session</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase SDK & Application Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-EXAMPLE_KEY_REPLACE_THIS",
+            authDomain: "atendance-system-a94cc.firebaseapp.com",
+            projectId: "atendance-system-a94cc",
+            storageBucket: "atendance-system-a94cc.appspot.com",
+            messagingSenderId: "113309934198421535548",
+            appId: "1:113309934198421535548:web:123456789abcdef"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let activeFaculty = "Not Set";
+        let activeLecture = "Not Set";
+        let activeRoom = "N/A";
+
+        let contextTargetType = null;
+        let selectedDocId = null;
+
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('att-date').value = now.toISOString().split('T')[0];
+            document.getElementById('att-time').value = now.toTimeString().split(' ')[0];
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        window.showSection = function(sectionId) {
+            document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            hideContextMenu();
+        };
+
+        const contextMenu = document.getElementById('context-menu');
+        const contextActionText = document.getElementById('context-action-text');
+
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+            selectedDocId = null;
+            contextTargetType = null;
+        }
+
+        document.addEventListener('click', () => hideContextMenu());
+
+        // Right-Click Context Menu for Desktop
+        window.handleRowContextMenu = function(e, docId) {
+            e.preventDefault();
+            contextTargetType = 'attendance';
+            selectedDocId = docId;
+            contextActionText.innerText = 'Delete Attendance Record';
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.style.top = `${e.pageY}px`;
+            contextMenu.style.display = 'block';
+        };
+
+        window.handleFacultyContextMenu = function(e) {
+            e.preventDefault();
+            contextTargetType = 'faculty';
+            contextActionText.innerText = 'Reset Faculty Session';
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.style.top = `${e.pageY}px`;
+            contextMenu.style.display = 'block';
+        };
+
+        // Delete Helper Function
+        async function deleteAttendanceRecord(docId) {
+            if (confirm("Are you sure you want to delete this attendance record?")) {
+                try {
+                    await deleteDoc(doc(db, "attendance", docId));
+                    alert("Record deleted successfully!");
+                } catch (err) {
+                    alert("Delete failed: " + err.message);
+                }
+            }
+        }
+
+        document.getElementById('btn-context-action').addEventListener('click', async () => {
+            if (contextTargetType === 'attendance' && selectedDocId) {
+                await deleteAttendanceRecord(selectedDocId);
+            } else if (contextTargetType === 'faculty') {
+                if (confirm("Are you sure you want to clear/reset active faculty session?")) {
+                    try {
+                        await setDoc(doc(db, "system", "active_session"), {
+                            faculty_name: "Not Set",
+                            lecture_name: "Not Set",
+                            room_no: "N/A"
+                        });
+                        alert("Session reset successfully!");
+                    } catch (err) {
+                        alert("Reset failed: " + err.message);
+                    }
+                }
+            }
+            hideContextMenu();
+        });
+
+        // Mobile Swipe-to-Delete Listener Binding
+        function bindSwipeToDelete() {
+            document.querySelectorAll('.swipeable-row').forEach(row => {
+                let startX = 0;
+                let diffX = 0;
+
+                row.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                });
+
+                row.addEventListener('touchmove', (e) => {
+                    diffX = e.touches[0].clientX - startX;
+                    if (diffX < 0) { // Swiping Left
+                        row.style.transform = `translateX(${diffX}px)`;
+                        row.classList.add('swiping-left');
+                    }
+                });
+
+                row.addEventListener('touchend', async (e) => {
+                    const docId = row.getAttribute('data-doc-id');
+                    if (diffX < -100 && docId) { // Threshold reached
+                        row.style.transform = 'translateX(-100%)';
+                        setTimeout(async () => {
+                            await deleteAttendanceRecord(docId);
+                            row.style.transform = 'translateX(0)';
+                            row.classList.remove('swiping-left');
+                        }, 200);
+                    } else {
+                        row.style.transform = 'translateX(0)';
+                        row.classList.remove('swiping-left');
+                    }
+                    diffX = 0;
+                });
+            });
+        }
+
+        // Sync Active Faculty
+        onSnapshot(doc(db, "system", "active_session"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                activeFaculty = data.faculty_name || "Not Set";
+                activeLecture = data.lecture_name || "Not Set";
+                activeRoom = data.room_no || "N/A";
+
+                document.getElementById('session-faculty').innerText = activeFaculty;
+                document.getElementById('session-lecture').innerText = activeLecture;
+                document.getElementById('session-room').innerText = activeRoom;
+            }
+        });
+
+        // Set Faculty
+        document.getElementById('faculty-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fac = document.getElementById('fac-name').value;
+            const lec = document.getElementById('fac-lecture').value;
+            const rm = document.getElementById('fac-room').value;
+
+            try {
+                await setDoc(doc(db, "system", "active_session"), {
+                    faculty_name: fac,
+                    lecture_name: lec,
+                    room_no: rm
+                });
+                bootstrap.Modal.getInstance(document.getElementById('addFacultyModal')).hide();
+            } catch (err) {
+                alert("Error setting session: " + err.message);
+            }
+        });
+
+        // Add Attendance
+        document.getElementById('attendance-entry-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('att-name').value;
+            const roll = document.getElementById('att-roll').value;
+            const date = document.getElementById('att-date').value;
+            const time = document.getElementById('att-time').value;
+
+            try {
+                await addDoc(collection(db, "attendance"), {
+                    name: name,
+                    student_id: roll,
+                    date: date,
+                    time: time,
+                    faculty_name: activeFaculty,
+                    lecture_name: activeLecture,
+                    timestamp: new Date()
+                });
+
+                alert("Attendance Recorded Successfully!");
+                document.getElementById('att-name').value = '';
+                document.getElementById('att-roll').value = '';
+            } catch (err) {
+                alert("Error saving record: " + err.message);
+            }
+        });
+
+        // Sync Attendance Records Realtime
+        const attendanceQuery = query(collection(db, "attendance"), orderBy("timestamp", "desc"));
+        onSnapshot(attendanceQuery, (snapshot) => {
+            let recentRows = '';
+            let masterRows = '';
+
+            snapshot.docs.forEach((docSnap, index) => {
+                const item = docSnap.data();
+                const docId = docSnap.id;
+
+                masterRows += `<tr class="swipeable-row" data-doc-id="${docId}" oncontextmenu="handleRowContextMenu(event, '${docId}')">
+                    <td>${item.date} ${item.time}</td>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.student_id}</td>
+                    <td>${item.faculty_name || 'N/A'}</td>
+                    <td>${item.lecture_name || 'N/A'}</td>
+                </tr>`;
+
+                if (index < 10) {
+                    recentRows += `<tr class="swipeable-row" data-doc-id="${docId}" oncontextmenu="handleRowContextMenu(event, '${docId}')">
+                        <td>${item.time}</td>
+                        <td>${item.name}</td>
+                        <td>${item.student_id}</td>
+                        <td>${item.lecture_name || 'N/A'}</td>
+                    </tr>`;
+                }
+            });
+
+            document.getElementById('recent-attendance-list').innerHTML = recentRows || '<tr><td colspan="4">No entries yet</td></tr>';
+            document.getElementById('master-register-list').innerHTML = masterRows || '<tr><td colspan="5">No records found</td></tr>';
+            
+            bindSwipeToDelete();
+        });
+
+        // Student Portal Statistics Calculation
+        document.getElementById('student-login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const roll = document.getElementById('login-roll').value.trim();
+            const name = document.getElementById('login-name').value.trim();
+            const branch = document.getElementById('login-branch').value.trim();
+
+            const querySnapshot = await getDocs(collection(db, "attendance"));
+            let totalSessions = 0;
+            let attendedCount = 0;
+            const uniqueSessions = new Set();
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const sessionKey = `${data.date}_${data.lecture_name}`;
+                uniqueSessions.add(sessionKey);
+
+                if (data.student_id === roll) {
+                    attendedCount++;
+                }
+            });
+
+            totalSessions = uniqueSessions.size || attendedCount || 1;
+            const percentage = Math.min(100, Math.round((attendedCount / totalSessions) * 100));
+
+            document.getElementById('st-display-name').innerText = name;
+            document.getElementById('st-display-roll').innerText = roll;
+            document.getElementById('st-display-branch').innerText = branch;
+            document.getElementById('st-attended-count').innerText = attendedCount;
+            document.getElementById('st-total-count').innerText = totalSessions;
+            document.getElementById('st-percentage').innerText = percentage + '%';
+            document.getElementById('st-progress-bar').style.width = percentage + '%';
+
+            document.getElementById('student-result-card').classList.remove('d-none');
+        });
+
+        // Export Register to CSV
+        window.exportToCSV = function() {
+            let csv = [];
+            const rows = document.querySelectorAll("#register-table tr");
+            
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) 
+                    row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
+                csv.push(row.join(","));        
+            }
+
+            const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+            const downloadLink = document.createElement("a");
+            downloadLink.download = "Attendance_Register.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+        };
+    </script>
+</body>
+</html>
