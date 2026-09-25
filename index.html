@@ -9,11 +9,11 @@
     <style>
         .nav-card {
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            touch-action: manipulation;
         }
-        .nav-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+        .nav-card:active {
+            transform: scale(0.98);
         }
         .section-view {
             display: none;
@@ -29,13 +29,13 @@
             z-index: 10000;
             min-width: 170px;
             background: white;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
             border: 1px solid #ddd;
             overflow: hidden;
         }
         #context-menu .menu-item {
-            padding: 10px 15px;
+            padding: 12px 16px;
             cursor: pointer;
             color: #dc3545;
             font-weight: 600;
@@ -44,23 +44,38 @@
             gap: 8px;
             transition: background 0.2s;
         }
-        #context-menu .menu-item:hover {
+        #context-menu .menu-item:active {
             background-color: #f8d7da;
         }
 
-        /* Swipe to Delete CSS animation & feedback */
+        /* Swipe to Delete & Touch Optimizations */
         .swipeable-row {
             transition: transform 0.2s ease, background-color 0.2s ease;
             touch-action: pan-y;
+            user-select: none;
         }
         .swiping-left {
             background-color: #f8d7da !important;
+        }
+
+        @media (max-width: 576px) {
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.95rem;
+            }
+            .form-control {
+                font-size: 1rem;
+                padding: 10px 12px;
+            }
+            .table-responsive {
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 <body class="bg-light">
 
-    <!-- Custom Context Menu for Desktop Right Click -->
+    <!-- Custom Context Menu -->
     <div id="context-menu">
         <div class="menu-item" id="btn-context-action">
             <i class="bi bi-trash-fill"></i> <span id="context-action-text">Delete Record</span>
@@ -68,10 +83,10 @@
     </div>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#" onclick="showSection('home')">
-                <i class="bi bi-journal-check me-2"></i>GPA ICT Attendance Portal
+            <a class="navbar-brand fw-bold fs-6 fs-md-5" href="#" onclick="showSection('home')">
+                <i class="bi bi-journal-check me-2"></i>GPA ICT Attendance
             </a>
             <button class="btn btn-outline-light btn-sm" onclick="showSection('home')">
                 <i class="bi bi-house-door-fill me-1"></i> Home
@@ -79,45 +94,45 @@
         </div>
     </nav>
 
-    <div class="container py-4">
+    <div class="container py-3 py-md-4">
 
         <!-- ================= HOME MAIN NAVIGATION ================= -->
         <div id="home" class="section-view active">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold text-dark">Smart Attendance Management Portal</h2>
-                <p class="text-muted">Government Polytechnic Ahmedabad - ICT Department</p>
+            <div class="text-center mb-4">
+                <h3 class="fw-bold text-dark">Smart Attendance Portal</h3>
+                <p class="text-muted small">Government Polytechnic Ahmedabad - ICT Department</p>
             </div>
 
-            <div class="row g-4 justify-content-center">
-                <div class="col-md-4">
-                    <div class="card nav-card border-0 shadow-sm text-center p-4 h-100" onclick="showSection('add-attendance-sec')">
+            <div class="row g-3 justify-content-center">
+                <div class="col-12 col-md-4">
+                    <div class="card nav-card border-0 shadow-sm text-center p-3 h-100" onclick="showSection('add-attendance-sec')">
                         <div class="card-body">
-                            <i class="bi bi-person-plus-fill text-primary display-4 mb-3"></i>
-                            <h4 class="card-title fw-bold">1. Add Attendance</h4>
-                            <p class="card-text text-muted small">Mark student attendance via digital entry form & configure faculty session.</p>
-                            <button class="btn btn-primary rounded-pill px-4 mt-2">Open Form</button>
+                            <i class="bi bi-person-plus-fill text-primary display-5 mb-2"></i>
+                            <h5 class="card-title fw-bold">1. Add Attendance</h5>
+                            <p class="card-text text-muted small">Mark student attendance via digital entry form.</p>
+                            <button class="btn btn-primary rounded-pill px-4 mt-2 w-100">Open Form</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card nav-card border-0 shadow-sm text-center p-4 h-100" onclick="showSection('attendance-register-sec')">
+                <div class="col-12 col-md-4">
+                    <div class="card nav-card border-0 shadow-sm text-center p-3 h-100" onclick="showSection('attendance-register-sec')">
                         <div class="card-body">
-                            <i class="bi bi-journal-check text-success display-4 mb-3"></i>
-                            <h4 class="card-title fw-bold">2. Attendance Register</h4>
-                            <p class="card-text text-muted small">View complete master attendance records with Student, Faculty, and Lecture details.</p>
-                            <button class="btn btn-success rounded-pill px-4 mt-2">View Register</button>
+                            <i class="bi bi-journal-check text-success display-5 mb-2"></i>
+                            <h5 class="card-title fw-bold">2. Attendance Register</h5>
+                            <p class="card-text text-muted small">View complete master attendance records.</p>
+                            <button class="btn btn-success rounded-pill px-4 mt-2 w-100">View Register</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="card nav-card border-0 shadow-sm text-center p-4 h-100" onclick="showSection('student-login-sec')">
+                <div class="col-12 col-md-4">
+                    <div class="card nav-card border-0 shadow-sm text-center p-3 h-100" onclick="showSection('student-login-sec')">
                         <div class="card-body">
-                            <i class="bi bi-person-badge-fill text-warning display-4 mb-3"></i>
-                            <h4 class="card-title fw-bold">3. Student Login</h4>
-                            <p class="card-text text-muted small">Students can check their attendance history and calculate overall percentage.</p>
-                            <button class="btn btn-warning text-white rounded-pill px-4 mt-2">Student Portal</button>
+                            <i class="bi bi-person-badge-fill text-warning display-5 mb-2"></i>
+                            <h5 class="card-title fw-bold">3. Student Login</h5>
+                            <p class="card-text text-muted small">Check attendance history & total percentage.</p>
+                            <button class="btn btn-warning text-white rounded-pill px-4 mt-2 w-100">Student Portal</button>
                         </div>
                     </div>
                 </div>
@@ -127,45 +142,43 @@
         <!-- ================= SECTION 1: ADD ATTENDANCE (FORM) ================= -->
         <div id="add-attendance-sec" class="section-view">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold text-primary"><i class="bi bi-pencil-square me-2"></i>Add Attendance Form</h3>
-                <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Back to Home</button>
+                <h4 class="fw-bold text-primary mb-0"><i class="bi bi-pencil-square me-2"></i>Add Attendance</h4>
+                <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Home</button>
             </div>
 
             <!-- Active Faculty Banner -->
-            <div id="faculty-banner" class="alert alert-info d-flex justify-content-between align-items-center shadow-sm" oncontextmenu="handleFacultyContextMenu(event)">
-                <div>
-                    <strong>Active Lecture Session:</strong> <span id="session-faculty">Prof. Sharma</span> | 
-                    <strong>Lecture:</strong> <span id="session-lecture">Python Programming</span> | 
-                    <strong>Room No:</strong> <span id="session-room">Lab-302</span>
-                    <small class="text-danger ms-2 d-none d-md-inline" style="font-size: 11px;">(Right-click banner to reset session)</small>
+            <div id="faculty-banner" class="alert alert-info d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 shadow-sm" oncontextmenu="handleFacultyContextMenu(event)">
+                <div class="small">
+                    <div><strong>Faculty:</strong> <span id="session-faculty">Prof. Sharma</span></div>
+                    <div><strong>Lecture:</strong> <span id="session-lecture">Python Programming</span> | <strong>Room:</strong> <span id="session-room">Lab-302</span></div>
                 </div>
-                <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#addFacultyModal">
-                    <i class="bi bi-person-gear"></i> Set / Add Faculty
+                <button class="btn btn-sm btn-outline-dark w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#addFacultyModal">
+                    <i class="bi bi-person-gear"></i> Set Faculty
                 </button>
             </div>
 
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-primary text-white fw-bold">Mark Attendance Entry</div>
                         <div class="card-body">
                             <form id="attendance-entry-form">
-                                <div class="row mb-3">
-                                    <div class="col">
-                                        <label class="form-label fw-bold">Date (Automatic)</label>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label fw-bold small">Date</label>
                                         <input type="text" id="att-date" class="form-control bg-light" readonly>
                                     </div>
-                                    <div class="col">
-                                        <label class="form-label fw-bold">Time (Automatic)</label>
+                                    <div class="col-6">
+                                        <label class="form-label fw-bold small">Time</label>
                                         <input type="text" id="att-time" class="form-control bg-light" readonly>
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Student Name</label>
+                                    <label class="form-label fw-bold small">Student Name</label>
                                     <input type="text" id="att-name" class="form-control" placeholder="e.g. Rahul Patel" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Roll No.</label>
+                                    <label class="form-label fw-bold small">Roll No.</label>
                                     <input type="text" id="att-roll" class="form-control" placeholder="e.g. 101" required>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100 fw-bold">Submit Attendance</button>
@@ -174,26 +187,28 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
-                            <span>Recently Marked Entries</span>
-                            <small class="text-warning" style="font-size: 11px;">(Swipe left or Right-click to delete)</small>
+                            <span>Recent Entries</span>
+                            <small class="text-warning" style="font-size: 10px;">Swipe left to delete</small>
                         </div>
-                        <div class="card-body p-2" style="max-height: 380px; overflow-y: auto;">
-                            <table class="table table-sm table-hover text-center">
-                                <thead>
-                                    <tr>
-                                        <th>Time</th>
-                                        <th>Name</th>
-                                        <th>Roll No</th>
-                                        <th>Lecture</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recent-attendance-list">
-                                    <!-- Populated via Firebase -->
-                                </tbody>
-                            </table>
+                        <div class="card-body p-0">
+                            <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                                <table class="table table-sm table-hover text-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Name</th>
+                                            <th>Roll No</th>
+                                            <th>Lecture</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-attendance-list">
+                                        <!-- Populated via Firebase -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -202,18 +217,18 @@
 
         <!-- ================= SECTION 2: ATTENDANCE REGISTER ================= -->
         <div id="attendance-register-sec" class="section-view">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold text-success"><i class="bi bi-journal-bookmark me-2"></i>Attendance Register</h3>
-                <div>
-                    <button class="btn btn-success me-2" onclick="exportToCSV()"><i class="bi bi-file-earmark-excel"></i> Export CSV/Excel</button>
-                    <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Back to Home</button>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                <h4 class="fw-bold text-success mb-0"><i class="bi bi-journal-bookmark me-2"></i>Register</h4>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success btn-sm flex-fill" onclick="exportToCSV()"><i class="bi bi-file-earmark-excel"></i> Export CSV</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Home</button>
                 </div>
             </div>
 
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-secondary">Master Attendance Records</span>
-                    <small class="text-danger"><i class="bi bi-info-circle"></i> Swipe left on mobile or Right-click on desktop to delete record</small>
+                <div class="card-header bg-light d-flex justify-content-between align-items-center p-2 px-3">
+                    <span class="fw-bold text-secondary small">Master Records</span>
+                    <small class="text-danger" style="font-size: 10px;"><i class="bi bi-info-circle"></i> Swipe left to delete</small>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -223,8 +238,8 @@
                                     <th>Date & Time</th>
                                     <th>Student Name</th>
                                     <th>Roll No</th>
-                                    <th>Faculty Name</th>
-                                    <th>Lecture Name</th>
+                                    <th>Faculty</th>
+                                    <th>Lecture</th>
                                 </tr>
                             </thead>
                             <tbody id="master-register-list">
@@ -239,26 +254,26 @@
         <!-- ================= SECTION 3: STUDENT LOGIN ================= -->
         <div id="student-login-sec" class="section-view">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold text-warning"><i class="bi bi-person-circle me-2"></i>Student Attendance Portal</h3>
-                <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Back to Home</button>
+                <h4 class="fw-bold text-warning mb-0"><i class="bi bi-person-circle me-2"></i>Student Portal</h4>
+                <button class="btn btn-secondary btn-sm" onclick="showSection('home')">← Home</button>
             </div>
 
-            <div class="row justify-content-center">
-                <div class="col-md-5">
-                    <div class="card shadow-sm border-0 mb-4">
+            <div class="row justify-content-center g-3">
+                <div class="col-12 col-md-5">
+                    <div class="card shadow-sm border-0">
                         <div class="card-header bg-warning text-dark fw-bold">Student Verification</div>
                         <div class="card-body">
                             <form id="student-login-form">
                                 <div class="mb-3">
-                                    <label class="form-label">Student Name</label>
+                                    <label class="form-label small">Student Name</label>
                                     <input type="text" id="login-name" class="form-control" placeholder="e.g. Rahul Patel" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Roll No</label>
+                                    <label class="form-label small">Roll No</label>
                                     <input type="text" id="login-roll" class="form-control" placeholder="e.g. 101" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Branch</label>
+                                    <label class="form-label small">Branch</label>
                                     <input type="text" id="login-branch" class="form-control" value="ICT" required>
                                 </div>
                                 <button type="submit" class="btn btn-warning text-white w-100 fw-bold">Check Attendance</button>
@@ -267,20 +282,20 @@
                     </div>
                 </div>
 
-                <div class="col-md-7">
+                <div class="col-12 col-md-7">
                     <div id="student-result-card" class="card shadow-sm border-0 d-none">
                         <div class="card-header bg-dark text-white fw-bold">Attendance Statistics</div>
-                        <div class="card-body text-center">
+                        <div class="card-body text-center py-4">
                             <h4 id="st-display-name" class="fw-bold text-primary mb-1">--</h4>
-                            <p class="text-muted">Roll No: <span id="st-display-roll">--</span> | Branch: <span id="st-display-branch">--</span></p>
+                            <p class="text-muted small">Roll No: <span id="st-display-roll">--</span> | Branch: <span id="st-display-branch">--</span></p>
                             
-                            <div class="my-4">
-                                <div class="display-3 fw-bold text-success" id="st-percentage">0%</div>
-                                <div class="progress mt-2" style="height: 12px;">
+                            <div class="my-3">
+                                <div class="display-4 fw-bold text-success" id="st-percentage">0%</div>
+                                <div class="progress mt-2" style="height: 10px;">
                                     <div id="st-progress-bar" class="progress-bar bg-success" style="width: 0%"></div>
                                 </div>
                             </div>
-                            <p class="mb-0">Attended <strong id="st-attended-count">0</strong> out of <strong id="st-total-count">0</strong> conducted sessions.</p>
+                            <p class="mb-0 small">Attended <strong id="st-attended-count">0</strong> out of <strong id="st-total-count">0</strong> conducted sessions.</p>
                         </div>
                     </div>
                 </div>
@@ -291,24 +306,24 @@
 
     <!-- Modal: Add / Change Faculty -->
     <div class="modal fade" id="addFacultyModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Add / Set Faculty Details</h5>
+                    <h5 class="modal-title fw-bold">Set Faculty Details</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="faculty-form">
                         <div class="mb-3">
-                            <label class="form-label">Faculty Name</label>
+                            <label class="form-label small">Faculty Name</label>
                             <input type="text" id="fac-name" class="form-control" placeholder="e.g. Prof. Sharma" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Lecture / Subject</label>
+                            <label class="form-label small">Lecture / Subject</label>
                             <input type="text" id="fac-lecture" class="form-control" placeholder="e.g. Python Programming" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Room No.</label>
+                            <label class="form-label small">Room No.</label>
                             <input type="text" id="fac-room" class="form-control" placeholder="e.g. Lab-302" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Save Active Session</button>
@@ -369,12 +384,11 @@
 
         document.addEventListener('click', () => hideContextMenu());
 
-        // Right-Click Context Menu for Desktop
         window.handleRowContextMenu = function(e, docId) {
             e.preventDefault();
             contextTargetType = 'attendance';
             selectedDocId = docId;
-            contextActionText.innerText = 'Delete Attendance Record';
+            contextActionText.innerText = 'Delete Record';
             contextMenu.style.left = `${e.pageX}px`;
             contextMenu.style.top = `${e.pageY}px`;
             contextMenu.style.display = 'block';
@@ -383,13 +397,12 @@
         window.handleFacultyContextMenu = function(e) {
             e.preventDefault();
             contextTargetType = 'faculty';
-            contextActionText.innerText = 'Reset Faculty Session';
+            contextActionText.innerText = 'Reset Session';
             contextMenu.style.left = `${e.pageX}px`;
             contextMenu.style.top = `${e.pageY}px`;
             contextMenu.style.display = 'block';
         };
 
-        // Delete Helper Function
         async function deleteAttendanceRecord(docId) {
             if (confirm("Are you sure you want to delete this attendance record?")) {
                 try {
@@ -421,7 +434,6 @@
             hideContextMenu();
         });
 
-        // Mobile Swipe-to-Delete Listener Binding
         function bindSwipeToDelete() {
             document.querySelectorAll('.swipeable-row').forEach(row => {
                 let startX = 0;
@@ -433,7 +445,7 @@
 
                 row.addEventListener('touchmove', (e) => {
                     diffX = e.touches[0].clientX - startX;
-                    if (diffX < 0) { // Swiping Left
+                    if (diffX < 0) {
                         row.style.transform = `translateX(${diffX}px)`;
                         row.classList.add('swiping-left');
                     }
@@ -441,7 +453,7 @@
 
                 row.addEventListener('touchend', async (e) => {
                     const docId = row.getAttribute('data-doc-id');
-                    if (diffX < -100 && docId) { // Threshold reached
+                    if (diffX < -100 && docId) {
                         row.style.transform = 'translateX(-100%)';
                         setTimeout(async () => {
                             await deleteAttendanceRecord(docId);
@@ -457,7 +469,6 @@
             });
         }
 
-        // Sync Active Faculty
         onSnapshot(doc(db, "system", "active_session"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -471,7 +482,6 @@
             }
         });
 
-        // Set Faculty
         document.getElementById('faculty-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const fac = document.getElementById('fac-name').value;
@@ -490,7 +500,6 @@
             }
         });
 
-        // Add Attendance
         document.getElementById('attendance-entry-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const name = document.getElementById('att-name').value;
@@ -517,7 +526,6 @@
             }
         });
 
-        // Sync Attendance Records Realtime
         const attendanceQuery = query(collection(db, "attendance"), orderBy("timestamp", "desc"));
         onSnapshot(attendanceQuery, (snapshot) => {
             let recentRows = '';
@@ -551,7 +559,6 @@
             bindSwipeToDelete();
         });
 
-        // Student Portal Statistics Calculation
         document.getElementById('student-login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const roll = document.getElementById('login-roll').value.trim();
@@ -587,7 +594,6 @@
             document.getElementById('student-result-card').classList.remove('d-none');
         });
 
-        // Export Register to CSV
         window.exportToCSV = function() {
             let csv = [];
             const rows = document.querySelectorAll("#register-table tr");
